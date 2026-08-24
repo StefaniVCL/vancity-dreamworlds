@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>VanCity Labs · Six worlds, grown after dark</title>
 <meta name="description" content="One unbroken dream flight through the worlds VanCity Labs grows in British Columbia: flower, rosin, diamonds, hash and more. Everything in it is real and on the shelf.">
+<meta name="theme-color" content="#0A0913">
+<meta property="og:type" content="website">
+<meta property="og:title" content="VanCity Labs · Six worlds, grown after dark">
+<meta property="og:description" content="Scroll through one unbroken dream: the grove, the golden river, the glass cavern, the snowfall and the candy sky. Everything in it is on the shelf.">
+<meta property="og:url" content="https://stefanivcl.github.io/vancity-dreamworlds/">
+<meta property="og:image" content="https://stefanivcl.github.io/vancity-dreamworlds/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://stefanivcl.github.io/vancity-dreamworlds/assets/og.jpg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230A0913'/><circle cx='16' cy='16' r='7' fill='%2346CFF0'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +37,8 @@
   .bar {
     position: fixed; inset: 0 0 auto 0; z-index: 40;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem var(--sc-gutter);
+    padding: 1rem var(--sc-gutter) 1.4rem;
+    background: linear-gradient(to bottom, rgba(8, 7, 16, 0.55), transparent);
   }
   .bar__mark {
     font-family: var(--sc-font-display); font-weight: 800;
@@ -64,6 +73,16 @@
   }
   .map button:hover { transform: scale(1.35); }
   .map button[aria-current="true"] { background: var(--sc-accent); border-color: var(--sc-accent); }
+  .map li { position: relative; }
+  .map button::after {
+    content: attr(aria-label); position: absolute; right: 22px; top: 50%;
+    translate: 0 -50%; white-space: nowrap; pointer-events: none;
+    font: 500 0.72rem/1 var(--sc-font-display); letter-spacing: 0.06em;
+    color: var(--sc-ink); background: rgba(10, 8, 20, 0.85);
+    padding: 0.4em 0.7em; border-radius: 0.5em;
+    opacity: 0; transition: opacity 140ms var(--sc-ease-out);
+  }
+  .map button:hover::after, .map button:focus-visible::after { opacity: 1; }
   @media (max-width: 860px) { .map { display: none; } }
 
   /* ---- the one canvas ------------------------------------------------ */
@@ -128,6 +147,7 @@
   .w-copy .sc-label { color: #CBA1FF; margin-bottom: 0.9rem; }
   .worldlink { color: var(--sc-accent); text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
   .worldlink:hover { color: #7ee0f8; }
+  .w-copy .worldlink::after { content: " \203A"; font-weight: 600; }
   .w-river h2 { color: #FBE3B8; }
   .w-cavern h2 { color: #CFEFFF; }
   .w-bloom h2 { color: #E9D5FF; }
@@ -477,7 +497,7 @@
       <h2 class="sc-display sc-display--lg">Open your eyes. It's all real.</h2>
       <p class="sc-body">Everything you flew through is on the shelf tonight, grown in BC and shipped across Canada.</p>
       <p style="margin-top: 1.6rem;"><a class="cta" href="https://www.vancitylabs.co/">Enter the shop</a></p>
-      <p class="sc-body" style="margin-top: 2rem; font-size: var(--sc-t-xs);">VanCity Labs · Vancouver, BC · 19+ only. This was a dream. <a class="worldlink" href="https://www.vancitylabs.co/">The shop is real.</a></p>
+      <p class="sc-body" style="margin-top: 2rem; font-size: var(--sc-t-xs);">© 2026 VanCity Labs · Vancouver, BC · 19+ only. This was a dream. <a class="worldlink" href="https://www.vancitylabs.co/">The shop is real.</a></p>
     </div>
   </div>
 
@@ -598,9 +618,11 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
     root.style.setProperty("--breath", br.toFixed(3));
 
     if (stage) {
-      var s = 1.012 + br * 0.012;
-      var dx = Math.sin(phase * 0.7) * 7;
-      var dy = Math.cos(phase * 0.5) * 5;
+      /* drift stays inside the scale margin at every viewport size */
+      var s = 1.015 + br * 0.012;
+      var cap = Math.min(innerWidth, innerHeight) * 0.006;
+      var dx = Math.sin(phase * 0.7) * cap;
+      var dy = Math.cos(phase * 0.5) * cap * 0.7;
       stage.style.transform = 'translate3d(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px,0) scale(' + s.toFixed(4) + ')';
     }
 
@@ -638,7 +660,8 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
     }
     ctx.globalAlpha = 1;
 
-    /* ambient loops follow their segment */
+    /* ambient loops follow their segment; each rewinds to its loop start as
+       its scene fades in, so the crossfade always matches the painting */
     for (var m = 0; m < ambients.length; m++) {
       var am = ambients[m], segEl = segEls[am.seg];
       if (!segEl) continue;
@@ -646,8 +669,10 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
       am.v.style.opacity = op.toFixed(3);
       if (op > 0.03) {
         if (!am.loaded) { am.v.src = am.v.dataset.ambSrc; am.loaded = true; }
+        if ((am.lastOp || 0) <= 0.03 && am.v.readyState > 1) { try { am.v.currentTime = 0; } catch (e) {} }
         if (am.v.paused) { var pr = am.v.play(); if (pr && pr.catch) pr.catch(function () {}); }
       } else if (!am.v.paused) { am.v.pause(); }
+      am.lastOp = op;
     }
     var seg = parseFloat(cs.getPropertyValue('--sc-seg')) || 0;
     var segp = parseFloat(cs.getPropertyValue('--sc-segp')) || 0;
