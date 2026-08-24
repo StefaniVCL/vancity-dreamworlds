@@ -502,14 +502,14 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
   });
 })();
 
-/* The dream loop: the page is alive the whole way down. Every leg carries a
-   zoom-and-drift wave that returns to exactly scale 1 at both of its edges,
-   so motion flows through every seam instead of snapping; a slow breath runs
-   under everything, films included, so nothing is ever a dead still. */
+/* The dream loop: the films are the only scroll-driven camera. The canvas
+   itself just breathes: one slow time-based drift applied identically to the
+   whole stage, so it is alive at rest and physically cannot jump at a seam,
+   and it never zooms against the reader's scroll. */
 (function () {
   if (!matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
   var root = document.documentElement;
-  var segs = Array.prototype.slice.call(document.querySelectorAll('[data-sc-segment]'));
+  var stage = document.querySelector('.sc-world');
   var lastY = window.scrollY, lastT = performance.now();
   var vel = 0, phase = 0;
   var BLOOM_LEG = 15, SHELF_LEG = 18;
@@ -524,13 +524,11 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
     root.style.setProperty("--vel", vel.toFixed(3));
     root.style.setProperty("--breath", br.toFixed(3));
 
-    var tPos = y / innerHeight;
-    for (var i = 0; i < segs.length; i++) {
-      var local = Math.min(1, Math.max(0, (tPos - W_C0[i]) / W_WEIGHTS[i]));
-      var wave = Math.sin(Math.PI * local);
-      var s = (1 + 0.055 * wave) * (1 + br * 0.012);
-      var dx = (i % 2 ? 1 : -1) * wave * 10;
-      segs[i].style.transform = 'translate3d(' + dx.toFixed(1) + 'px,0,0) scale(' + s.toFixed(4) + ')';
+    if (stage) {
+      var s = 1.012 + br * 0.012;
+      var dx = Math.sin(phase * 0.7) * 7;
+      var dy = Math.cos(phase * 0.5) * 5;
+      stage.style.transform = 'translate3d(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px,0) scale(' + s.toFixed(4) + ')';
     }
 
     var cs = getComputedStyle(root);
