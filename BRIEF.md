@@ -194,3 +194,6 @@ No invented statistics anywhere; no counters. Product claims limited to what
 the shop art itself shows (fresh-frozen rosin, THCA diamonds, 1000 mg cannalean
 as printed on the bottle label). Cannabis brand: footer carries "19+ · BC,
 Canada" and the CTA leads to the age-gated live shop.
+
+## Rev 10 — the meteor approach (2026-08-24)
+The dead scroll between the altar going dark and the crystal crash is now a 10s scrubbed film (assets/v1.mp4): a spark spat from the galaxy core drifts, accelerates, and plunges into the central light, ending on the crash film's first frame. Leg "The void" is now 1.4vh with linger 0.1. Cost ~100 credits.
