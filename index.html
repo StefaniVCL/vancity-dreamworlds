@@ -286,11 +286,11 @@
   <ul class="map" id="dreamMap">
     <li><button data-leg="0"  aria-label="The Harbor"></button></li>
     <li><button data-leg="2"  aria-label="The Grove"></button></li>
-    <li><button data-leg="6"  aria-label="The Golden River"></button></li>
+    <li><button data-leg="6"  aria-label="The Golden Spoon"></button></li>
     <li><button data-leg="10" aria-label="The Glass Cavern"></button></li>
-    <li><button data-leg="15" aria-label="The Snowfall"></button></li>
-    <li><button data-leg="18" aria-label="The Candy Sky"></button></li>
-    <li><button data-leg="20" aria-label="The Wake"></button></li>
+    <li><button data-leg="13" aria-label="The Snowfall"></button></li>
+    <li><button data-leg="16" aria-label="The Candy Sky"></button></li>
+    <li><button data-leg="18" aria-label="The Wake"></button></li>
   </ul>
 </nav>
 
@@ -317,7 +317,7 @@
       <img class="sc-world__poster" src="assets/g1-poster.webp" alt="" decoding="async">
       <video data-sc-src="assets/g1.mp4" data-sc-src-mobile="assets/g1-m.mp4" muted playsinline></video>
     </div>
-    <div data-sc-segment data-sc-w="0.9" data-sc-waypoint="Grove">
+    <div data-sc-segment data-sc-w="1.1" data-sc-waypoint="Grove">
       <img class="sc-world__poster" src="assets/w2-grove.webp" alt="" decoding="async">
       <div class="wfx wfx--grove" aria-hidden="true"></div>
     </div>
@@ -325,33 +325,25 @@
       <img class="sc-world__poster" src="assets/b2-poster.webp" alt="" decoding="async">
       <video data-sc-src="assets/b2.mp4" data-sc-src-mobile="assets/b2-m.mp4" muted playsinline></video>
     </div>
-    <div data-sc-segment data-sc-w="1.4" data-sc-waypoint="The golden spoon">
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="The golden spoon">
       <img class="sc-world__poster" src="assets/w3b-river-product.webp" alt="" decoding="async">
       <div class="wfx wfx--riverB" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.6" data-sc-linger="0.3" data-sc-waypoint="Into the river">
-      <img class="sc-world__poster" src="assets/r1-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/r1.mp4" data-sc-src-mobile="assets/r1-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="0.9" data-sc-waypoint="Golden River">
-      <img class="sc-world__poster" src="assets/w3-river.webp" alt="" decoding="async">
-      <div class="wfx wfx--river" aria-hidden="true"></div>
     </div>
     <div data-sc-segment data-sc-w="1.8" data-sc-linger="0.22" data-sc-waypoint="Freezing">
       <img class="sc-world__poster" src="assets/b3-poster.webp" alt="" decoding="async">
       <video data-sc-src="assets/b3.mp4" data-sc-src-mobile="assets/b3-m.mp4" muted playsinline></video>
     </div>
-    <div data-sc-segment data-sc-w="1.4" data-sc-waypoint="The altar">
-      <img class="sc-world__poster" src="assets/w4b-cavern-product.webp" alt="" decoding="async">
-      <div class="wfx wfx--altar" aria-hidden="true"></div>
+    <div data-sc-segment data-sc-w="1.1" data-sc-waypoint="Glass Cavern">
+      <img class="sc-world__poster" src="assets/w4-cavern.webp" alt="" decoding="async">
+      <div class="wfx wfx--cavern" aria-hidden="true"></div>
     </div>
-    <div data-sc-segment data-sc-w="1.6" data-sc-linger="0.3" data-sc-waypoint="Into the cavern">
+    <div data-sc-segment data-sc-w="1.8" data-sc-linger="0.35" data-sc-waypoint="The reveal">
       <img class="sc-world__poster" src="assets/c1-poster.webp" alt="" decoding="async">
       <video data-sc-src="assets/c1.mp4" data-sc-src-mobile="assets/c1-m.mp4" muted playsinline></video>
     </div>
-    <div data-sc-segment data-sc-w="0.9" data-sc-waypoint="Glass Cavern">
-      <img class="sc-world__poster" src="assets/w4-cavern.webp" alt="" decoding="async">
-      <div class="wfx wfx--cavern" aria-hidden="true"></div>
+    <div data-sc-segment data-sc-w="1.5" data-sc-waypoint="The altar">
+      <img class="sc-world__poster" src="assets/w4b-cavern-product.webp" alt="" decoding="async">
+      <div class="wfx wfx--altar" aria-hidden="true"></div>
     </div>
     <div data-sc-segment data-sc-w="1.8" data-sc-linger="0.22" data-sc-waypoint="Lights out">
       <img class="sc-world__poster" src="assets/b4-poster.webp" alt="" decoding="async">
@@ -365,7 +357,7 @@
       <img class="sc-world__poster" src="assets/s1-poster.webp" alt="" decoding="async">
       <video data-sc-src="assets/s1.mp4" data-sc-src-mobile="assets/s1-m.mp4" muted playsinline></video>
     </div>
-    <div data-sc-segment data-sc-w="1.2" data-sc-waypoint="The nova">
+    <div data-sc-segment data-sc-w="1.3" data-sc-waypoint="The nova">
       <img class="sc-world__poster" src="assets/w5b-nova.webp" alt="" decoding="async">
       <div class="wfx wfx--nova" aria-hidden="true"></div>
     </div>
@@ -387,9 +379,15 @@
     </div>
     <!-- ambient cinemagraph loops: living air over the product shrines,
          opacity mirrored to their segment by the dream loop -->
-    <video class="ambient" data-amb-seg="2"  data-amb-src="assets/amb-bud.mp4"   muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="6"  data-amb-src="assets/amb-spoon.mp4" muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="10" data-amb-src="assets/amb-altar.mp4" muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="0"  data-amb-src="assets/amb-city.mp4"   muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="2"  data-amb-src="assets/amb-bud.mp4"    muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="4"  data-amb-src="assets/amb-trees.mp4"  muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="6"  data-amb-src="assets/amb-spoon.mp4"  muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="8"  data-amb-src="assets/amb-cavern.mp4" muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="10" data-amb-src="assets/amb-altar.mp4"  muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="14" data-amb-src="assets/amb-nova.mp4"   muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="16" data-amb-src="assets/amb-market.mp4" muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="18" data-amb-src="assets/amb-dawn.mp4"   muted loop playsinline aria-hidden="true"></video>
     <canvas class="dream-dust" aria-hidden="true"></canvas>
   </div>
 
@@ -402,42 +400,42 @@
       <p class="sc-body">Six worlds, grown in British Columbia. VanCity Labs keeps the lights on all night. Scroll, and don't wake up yet.</p>
     </div>
     <!-- the animated mark: no text content, so the contrast pass skips it -->
-    <div class="hero-mark" data-sc-copy data-sc-window="0 0.040 0 0.35" aria-hidden="true">
+    <div class="hero-mark" data-sc-copy data-sc-window="0 0.0495 0 0.35" aria-hidden="true">
       <img src="assets/logo.svg" width="87" height="45" alt="">
     </div>
 
-    <div class="sc-copy sc-copy--lead w-copy" data-sc-copy data-sc-window="0.108 0.221">
+    <div class="sc-copy sc-copy--lead w-copy" data-sc-copy data-sc-window="0.114 0.239">
       <p class="sc-label">The Grove</p>
       <h2 class="sc-display sc-display--lg">Small buds, deep sleep.</h2>
       <p class="sc-body">Frumpz smalls and hand-rolled cones, cured slow under a purple sky.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/a-smalls">Shop smalls</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/pre-rolls">Shop pre-rolls</a></p>
     </div>
 
-    <div class="sc-copy sc-copy--lead w-copy w-river" data-sc-copy data-sc-window="0.287 0.400">
+    <div class="sc-copy sc-copy--lead w-copy w-river" data-sc-copy data-sc-window="0.307 0.351">
       <h2 class="sc-display sc-display--lg">A river runs gold.</h2>
       <p class="sc-body">Live rosin, pressed cold from fresh-frozen flower. The terpenes ride the current whole.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/live-hash-rosin">Shop live hash rosin</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/cheap-dabs">Shop extracts</a></p>
     </div>
 
-    <div class="cavern-glow" aria-hidden="true" data-sc-copy data-sc-window="0.455 0.590"></div>
-    <div class="sc-copy sc-copy--lead w-copy w-cavern" data-sc-copy data-sc-window="0.466 0.578">
+    <div class="cavern-glow" aria-hidden="true" data-sc-copy data-sc-window="0.408 0.563"></div>
+    <div class="sc-copy sc-copy--lead w-copy w-cavern" data-sc-copy data-sc-window="0.418 0.553">
       <h2 class="sc-display sc-display--lg">The cavern keeps its light.</h2>
       <p class="sc-body">THCA diamonds grown in glass, stacked on the altar where the light lands.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/thca-diamonds">Shop diamonds</a></p>
     </div>
 
     <div class="bloom-scrim" aria-hidden="true"></div>
-    <div class="sc-copy sc-copy--lead w-copy w-bloom" data-sc-copy data-sc-window="0.740 0.784">
+    <div class="sc-copy sc-copy--lead w-copy w-bloom" data-sc-copy data-sc-window="0.706 0.772">
       <h2 class="sc-display sc-display--lg">And then it snowed in the dark.</h2>
       <p class="sc-body">THCA isolate, milled fine as mountain snow. The cleanest thing in the dream.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/isolates">Shop isolates</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/bc-bud">Shop BC bud</a></p>
     </div>
 
     <div class="shelf-scrim" aria-hidden="true"></div>
-    <div class="sc-copy sc-copy--lead w-copy market-head" data-sc-copy data-sc-window="0.846 0.897">
+    <div class="sc-copy sc-copy--lead w-copy market-head" data-sc-copy data-sc-window="0.838 0.891">
       <h2 class="sc-display sc-display--md">Pick a world. Wake up in it.</h2>
     </div>
-    <div class="shelf sc-copy" data-sc-copy data-sc-window="0.849 0.900">
+    <div class="shelf sc-copy" data-sc-copy data-sc-window="0.841 0.894">
       <div class="shelf__rail">
         <a class="card" href="https://www.vancitylabs.co/shop/bc-edibles">
           <img src="assets/edibles.webp" width="1200" height="1200" alt="A VanCity Labs jar of sugared gummy cubes.">
@@ -496,7 +494,7 @@ addEventListener('load', relayout);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
 
 /* Shared track geometry: one source of truth for the map and the dream loop */
-var W_WEIGHTS = [1.5, 1.8, 1.4, 1.6, 0.9, 1.8, 1.4, 1.6, 0.9, 1.8, 1.4, 1.6, 0.9, 1.8, 0.9, 2.6, 1.2, 1.8, 1.8, 1.8, 1.4];
+var W_WEIGHTS = [1.5, 1.8, 1.4, 1.6, 1.1, 1.8, 1.5, 1.8, 1.1, 1.8, 1.5, 1.8, 0.9, 2.6, 1.3, 1.8, 1.8, 1.8, 1.4];
 var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.push(r); r += w; }); })();
 
 /* The dream map: waypoint dots, clickable, lit by the engine's event */
@@ -529,12 +527,11 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
   var stage = document.querySelector('.sc-world');
   var lastY = window.scrollY, lastT = performance.now();
   var vel = 0, phase = 0;
-  var BLOOM_LEG = 15, SHELF_LEG = 18;
+  var BLOOM_LEG = 13, SHELF_LEG = 16;
 
   /* ---- the weather: one particle field, keyed to the current world ---- */
-  var WKEY = ['harbor','grove','grove','grove','grove','river','river','river','river',
-              'cavern','cavern','cavern','cavern','void','void','nova','nova',
-              'market','market','wake','wake'];
+  var WKEY = ['harbor','grove','grove','grove','grove','river','river','cavern','cavern',
+              'cavern','cavern','void','void','nova','nova','market','market','wake','wake'];
   var WCFG = {
     harbor: { style: 'streak', n: 55, vy: [180, 300], vx: 26, sway: 0, len: 13,
               colors: ['rgba(178,198,255,0.45)', 'rgba(150,222,255,0.38)'] },
@@ -546,12 +543,12 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
               tw: 0.8, colors: ['#BFEFFF', '#DFF6FF', '#9BD8FF'] },
     void:   { style: 'dot', n: 26, vy: [2, 7], vx: 0, sway: 3, size: [0.7, 1.8],
               tw: 1, colors: ['#C9D4FF', '#E8ECFF'] },
-    nova:   { style: 'dot', n: 110, vy: [30, 80], vx: 0, sway: 26, size: [1, 3.4],
+    nova:   { style: 'dot', n: 150, vy: [45, 110], vx: 0, sway: 32, size: [1, 3.8],
               tw: 0.5, colors: ['#FFFFFF', '#E7F0FF', '#DFE8FF'] },
-    market: { style: 'dot', n: 85, vy: [-24, 10], vx: 6, sway: 18, size: [1.2, 3],
-              tw: 0.8, colors: ['#FF9AD5', '#8AF0D2', '#FFE08A', '#C5A8FF'] },
-    wake:   { style: 'dot', n: 45, vy: [-16, -5], vx: 3, sway: 8, size: [1, 2.6],
-              tw: 0.4, colors: ['#FFD9A0', '#FFEECB', '#FFC9B0'] }
+    market: { style: 'dot', n: 130, vy: [-30, 14], vx: 8, sway: 24, size: [1.2, 3.4],
+              tw: 0.9, colors: ['#FF9AD5', '#8AF0D2', '#FFE08A', '#C5A8FF'] },
+    wake:   { style: 'dot', n: 75, vy: [-20, -6], vx: 4, sway: 10, size: [1, 3],
+              tw: 0.5, colors: ['#FFD9A0', '#FFEECB', '#FFC9B0'] }
   };
   var canvas = document.querySelector('.dream-dust');
   var ctx = canvas.getContext('2d');
