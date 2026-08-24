@@ -166,6 +166,22 @@ content to zero width was found live and fixed). The script mark returns at
 the wake in neon blue, same seat as the hero. This round: ~1 still (card
 frame), no clips.
 
+## Revisions 7-9 (CEO feedback, 2026-08-24) — summary
+
+The build converged through three more rounds: (7) the CEO's definitive
+storyboard restored from archived films (spoon straight into the ice cave,
+forward snow-reveal of the altar, altar into the void), ambient cinemagraph
+loops on every world still, per-world particle weather replacing the global
+hue filter, product-first entrances; (8) all ambient loops regenerated with
+bold in-image motion and the scroll re-paced Apple-style (uniform 1.15vh
+bridges, 20.5vh track, direct playhead); (9) blend/audit/polish: ambients
+rewind to loop start on scene entry, viewport-capped breathing drift (edge
+exposure on phones caught by the structural audit), OG/social meta and share
+card, bar gradient, waypoint hover labels, link chevrons, copyright line.
+Live at stefanivcl.github.io/vancity-dreamworlds (GitHub Pages, repo
+StefaniVCL/vancity-dreamworlds). Total generation spend: 19,089 credits of
+the original 19,966; 877 remain.
+
 ## Authored silence
 
 Act 6 is a near-empty viewport with a single faint line ("Deeper now. Almost

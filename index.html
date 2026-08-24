@@ -270,6 +270,9 @@
   /* ---- responsive / reduced ------------------------------------------- */
   @media (max-width: 860px) {
     .w-hero h1 { font-size: var(--sc-t-2xl); }
+    /* world headings one step down: lg display wraps badly at 390px */
+    .w-copy h2.sc-display--lg { font-size: var(--sc-t-2xl); }
+    .w-copy { max-width: none; }
     .sc-world__scrim {
       background: linear-gradient(to top,
         rgba(8, 7, 16, 0.97) 0%, rgba(8, 7, 16, 0.86) 28%,
@@ -278,6 +281,16 @@
     .card { width: 72vw; }
     .hero-mark { right: auto; left: 50%; top: 20%; translate: -50% 0; }
     .hero-mark img { width: 42vw; }
+    /* portrait crops: pick the slice of each landscape painting that frames
+       its subject instead of blowing up whatever lands mid-frame */
+    [data-sc-segment]:nth-of-type(3) :is(img, video),
+    .ambient[data-amb-seg="2"] { object-position: 58% 45%; }
+    [data-sc-segment]:nth-of-type(7) :is(img, video),
+    .ambient[data-amb-seg="6"] { object-position: 60% 40%; }
+    [data-sc-segment]:nth-of-type(11) :is(img, video),
+    .ambient[data-amb-seg="10"] { object-position: 58% 45%; }
+    [data-sc-segment]:nth-of-type(17) :is(img, video),
+    .ambient[data-amb-seg="16"] { object-position: 55% 50%; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sc-world, .sc-world.is-melting { filter: none; }
@@ -635,15 +648,16 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (var k = 0; k < P.length; k++) {
       var p = P[k];
+      var quota = cfg.n * (innerWidth < 700 ? 0.55 : 1);
       if (p.dormant) {
-        if (k < cfg.n) { p.dormant = false; respawn(p, cfg, false); }
+        if (k < quota) { p.dormant = false; respawn(p, cfg, false); }
         continue;
       }
       p.y += p.vy * dts * boost;
       p.x += ((p.cfg.vx || 0) + Math.sin(ts * p.twf + p.ph) * (p.cfg.sway || 0)) * dts * boost;
       var off = p.y < -30 || p.y > canvas.height + 30 || p.x < -30 || p.x > canvas.width + 30;
       if (off) {
-        if (k < cfg.n) respawn(p, cfg, false); else p.dormant = true;
+        if (k < quota) respawn(p, cfg, false); else p.dormant = true;
         continue;
       }
       var a = 0.5 + Math.sin(ts * p.twf * 2 + p.ph) * (p.cfg.tw || 0.3) * 0.5;
