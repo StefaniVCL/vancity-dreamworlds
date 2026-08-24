@@ -69,6 +69,17 @@
   /* ---- the one canvas ------------------------------------------------ */
   .sc-world__seg img, .sc-world__seg video { object-fit: cover; width: 100%; height: 100%; }
 
+  /* the living weather: one particle field for the whole flight, its
+     character keyed to the current world by the dream loop */
+  .dream-dust {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    z-index: 300; pointer-events: none; mix-blend-mode: screen;
+  }
+  .ambient {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    z-index: 250; opacity: 0; pointer-events: none;
+  }
+
   /* Per-world energy: each pane answers scroll speed in its own light.
      Overlays live inside their segment, so they fade and move with it. */
   .wfx {
@@ -374,6 +385,12 @@
       <img class="sc-world__poster" src="assets/w7-wake.webp" alt="" decoding="async">
       <div class="wfx wfx--wake" aria-hidden="true"></div>
     </div>
+    <!-- ambient cinemagraph loops: living air over the product shrines,
+         opacity mirrored to their segment by the dream loop -->
+    <video class="ambient" data-amb-seg="2"  data-amb-src="assets/amb-bud.mp4"   muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="6"  data-amb-src="assets/amb-spoon.mp4" muted loop playsinline aria-hidden="true"></video>
+    <video class="ambient" data-amb-seg="10" data-amb-src="assets/amb-altar.mp4" muted loop playsinline aria-hidden="true"></video>
+    <canvas class="dream-dust" aria-hidden="true"></canvas>
   </div>
 
   <div data-sc-world-copy>
@@ -513,6 +530,65 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
   var lastY = window.scrollY, lastT = performance.now();
   var vel = 0, phase = 0;
   var BLOOM_LEG = 15, SHELF_LEG = 18;
+
+  /* ---- the weather: one particle field, keyed to the current world ---- */
+  var WKEY = ['harbor','grove','grove','grove','grove','river','river','river','river',
+              'cavern','cavern','cavern','cavern','void','void','nova','nova',
+              'market','market','wake','wake'];
+  var WCFG = {
+    harbor: { style: 'streak', n: 55, vy: [180, 300], vx: 26, sway: 0, len: 13,
+              colors: ['rgba(178,198,255,0.45)', 'rgba(150,222,255,0.38)'] },
+    grove:  { style: 'dot', n: 80, vy: [-26, -8], vx: 0, sway: 22, size: [1.4, 3.4],
+              tw: 0.6, colors: ['#CBA1FF', '#9BE8C4', '#EBD9FF'] },
+    river:  { style: 'dot', n: 70, vy: [-60, -28], vx: 4, sway: 10, size: [1, 3],
+              tw: 0.45, colors: ['#FFC96A', '#FF9A3C', '#FFE9B0'] },
+    cavern: { style: 'dot', n: 75, vy: [14, 34], vx: 0, sway: 8, size: [1, 2.6],
+              tw: 0.8, colors: ['#BFEFFF', '#DFF6FF', '#9BD8FF'] },
+    void:   { style: 'dot', n: 26, vy: [2, 7], vx: 0, sway: 3, size: [0.7, 1.8],
+              tw: 1, colors: ['#C9D4FF', '#E8ECFF'] },
+    nova:   { style: 'dot', n: 110, vy: [30, 80], vx: 0, sway: 26, size: [1, 3.4],
+              tw: 0.5, colors: ['#FFFFFF', '#E7F0FF', '#DFE8FF'] },
+    market: { style: 'dot', n: 85, vy: [-24, 10], vx: 6, sway: 18, size: [1.2, 3],
+              tw: 0.8, colors: ['#FF9AD5', '#8AF0D2', '#FFE08A', '#C5A8FF'] },
+    wake:   { style: 'dot', n: 45, vy: [-16, -5], vx: 3, sway: 8, size: [1, 2.6],
+              tw: 0.4, colors: ['#FFD9A0', '#FFEECB', '#FFC9B0'] }
+  };
+  var canvas = document.querySelector('.dream-dust');
+  var ctx = canvas.getContext('2d');
+  var sprites = {};
+  function sprite(c) {
+    if (sprites[c]) return sprites[c];
+    var s = document.createElement('canvas'); s.width = s.height = 32;
+    var g = s.getContext('2d');
+    var grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    grad.addColorStop(0, '#fff'); grad.addColorStop(0.25, c); grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad; g.fillRect(0, 0, 32, 32);
+    return (sprites[c] = s);
+  }
+  var P = [];
+  function respawn(p, cfg, anywhere) {
+    p.cfg = cfg;
+    p.x = Math.random() * canvas.width;
+    p.y = anywhere ? Math.random() * canvas.height
+        : (cfg.vy[0] + cfg.vy[1] < 0 ? canvas.height + 20 : -20);
+    p.vy = cfg.vy[0] + Math.random() * (cfg.vy[1] - cfg.vy[0]);
+    p.size = cfg.size ? cfg.size[0] + Math.random() * (cfg.size[1] - cfg.size[0]) : 1;
+    p.color = cfg.colors[(Math.random() * cfg.colors.length) | 0];
+    p.ph = Math.random() * 6.28;
+    p.twf = 0.5 + Math.random() * 1.6;
+  }
+  function sizeCanvas() {
+    canvas.width = innerWidth; canvas.height = innerHeight;
+  }
+  sizeCanvas(); addEventListener('resize', sizeCanvas);
+  for (var pi = 0; pi < 110; pi++) { var p0 = {}; respawn(p0, WCFG.harbor, true); P.push(p0); }
+
+  /* ambient loops: mirror their segment's opacity, play only when visible */
+  var segEls = Array.prototype.slice.call(document.querySelectorAll('[data-sc-segment]'));
+  var ambients = Array.prototype.slice.call(document.querySelectorAll('.ambient')).map(function (v) {
+    return { v: v, seg: +v.dataset.ambSeg, loaded: false };
+  });
+
   function tick(t) {
     var dt = Math.min(48, t - lastT) || 16; lastT = t;
     var y = window.scrollY;
@@ -532,6 +608,50 @@ var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.p
     }
 
     var cs = getComputedStyle(root);
+    var curSeg = Math.round(parseFloat(cs.getPropertyValue('--sc-seg')) || 0);
+    var cfg = WCFG[WKEY[Math.min(curSeg, WKEY.length - 1)]] || WCFG.harbor;
+
+    /* weather */
+    var dts = dt / 1000, boost = 1 + vel * 1.8, ts = t / 1000;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var k = 0; k < P.length; k++) {
+      var p = P[k];
+      if (p.dormant) {
+        if (k < cfg.n) { p.dormant = false; respawn(p, cfg, false); }
+        continue;
+      }
+      p.y += p.vy * dts * boost;
+      p.x += ((p.cfg.vx || 0) + Math.sin(ts * p.twf + p.ph) * (p.cfg.sway || 0)) * dts * boost;
+      var off = p.y < -30 || p.y > canvas.height + 30 || p.x < -30 || p.x > canvas.width + 30;
+      if (off) {
+        if (k < cfg.n) respawn(p, cfg, false); else p.dormant = true;
+        continue;
+      }
+      var a = 0.5 + Math.sin(ts * p.twf * 2 + p.ph) * (p.cfg.tw || 0.3) * 0.5;
+      ctx.globalAlpha = Math.max(0.08, Math.min(1, a));
+      if (p.cfg.style === 'streak') {
+        ctx.strokeStyle = p.color; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - (p.cfg.vx || 0) * 0.05, p.y - (p.cfg.len || 12));
+        ctx.stroke();
+      } else {
+        var d = p.size * 6;
+        ctx.drawImage(sprite(p.color), p.x - d / 2, p.y - d / 2, d, d);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    /* ambient loops follow their segment */
+    for (var m = 0; m < ambients.length; m++) {
+      var am = ambients[m], segEl = segEls[am.seg];
+      if (!segEl) continue;
+      var op = parseFloat(segEl.style.opacity || '0') || 0;
+      am.v.style.opacity = op.toFixed(3);
+      if (op > 0.03) {
+        if (!am.loaded) { am.v.src = am.v.dataset.ambSrc; am.loaded = true; }
+        if (am.v.paused) { var pr = am.v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      } else if (!am.v.paused) { am.v.pause(); }
+    }
     var seg = parseFloat(cs.getPropertyValue('--sc-seg')) || 0;
     var segp = parseFloat(cs.getPropertyValue('--sc-segp')) || 0;
     var bp = seg < BLOOM_LEG ? 0 : seg > BLOOM_LEG ? 1 : segp;
