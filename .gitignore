@@ -1,0 +1,8 @@
+lab/
+out/
+node_modules/
+*.sh
+*.mjs
+package.json
+package-lock.json
+*.log
