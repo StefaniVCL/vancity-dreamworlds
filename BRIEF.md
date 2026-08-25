@@ -197,14 +197,3 @@ Canada" and the CTA leads to the age-gated live shop.
 
 ## Rev 10 — the meteor approach (2026-08-24)
 The dead scroll between the altar going dark and the crystal crash is now a 10s scrubbed film (assets/v1.mp4): a spark spat from the galaxy core drifts, accelerates, and plunges into the central light, ending on the crash film's first frame. Leg "The void" is now 1.4vh with linger 0.1. Cost ~100 credits.
-
-## Rev 11 — shelved: "the show" (2026-08-25)
-A native-playback beat engine (scroll = intent, films play then hold) was built,
-shipped, and reverted the same day: the CEO wants the scroll-driven flow kept.
-Kept from it: playback encodes in lab/films-playback/, portrait plates in out/p/.
-
-## Rev 12 — the flight, lighter (2026-08-25)
-Same scroll-driven flight. Scrub films re-encoded 1600px CRF 23 (desktop) and
-960px CRF 25 (mobile), dense keyframes kept: 99 MB -> 55 MB. Page now warms every
-film and ambient into the HTTP cache in flight order from load, and preloads b1,
-so no leg waits on the network. Verified desktop + mobile harness clean.

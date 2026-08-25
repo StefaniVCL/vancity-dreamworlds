@@ -17,7 +17,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Geist:wght@400;500&display=swap">
-<link rel="preload" as="fetch" href="assets/b1.mp4">
 <link rel="stylesheet" href="scrollcraft.css">
 <style>
   :root {
@@ -522,25 +521,6 @@
 <script src="scrollcraft.js"></script>
 <script>
 ScrollCraft.mount(document);
-
-/* Warm the flight in order: every film is fetched into the HTTP cache one at a
-   time from page load, so the engine's own request for it is served locally
-   and no leg ever waits on the network. */
-(function () {
-  if (!matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
-  var mobile = innerWidth < 700;
-  var clips = Array.prototype.map.call(document.querySelectorAll('video[data-sc-src]'), function (v) {
-    return (mobile && v.getAttribute('data-sc-src-mobile')) || v.getAttribute('data-sc-src');
-  });
-  var ambs = Array.prototype.map.call(document.querySelectorAll('video[data-amb-src]'), function (v) { return v.getAttribute('data-amb-src'); });
-  var queue = [];
-  clips.forEach(function (c, i) { queue.push(c); if (ambs[i]) queue.push(ambs[i]); });
-  ambs.slice(clips.length).forEach(function (a) { queue.push(a); });
-  (function next() {
-    var u = queue.shift(); if (!u) return;
-    fetch(u, { priority: 'low' }).then(function (r) { return r.blob(); }).catch(function () {}).then(next);
-  })();
-})();
 
 /* worldflight sizes its spacer once at mount; re-measure after load and fonts */
 function relayout() { dispatchEvent(new Event('resize')); }
