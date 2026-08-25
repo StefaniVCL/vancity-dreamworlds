@@ -197,3 +197,16 @@ Canada" and the CTA leads to the age-gated live shop.
 
 ## Rev 10 — the meteor approach (2026-08-24)
 The dead scroll between the altar going dark and the crystal crash is now a 10s scrubbed film (assets/v1.mp4): a spark spat from the galaxy core drifts, accelerates, and plunges into the central light, ending on the crash film's first frame. Leg "The void" is now 1.4vh with linger 0.1. Cost ~100 credits.
+
+## Rev 11 — the show (2026-08-25)
+Scrubbing retired. `show.js` drives beats: each intent (wheel notch, swipe, tap,
+arrow key, rail dot) plays one transition film at native 24fps through the
+hardware decoder, then lands on a living hold (poster + ambient loop). Scenery
+holds (grove, cavern, void) auto-continue; product holds wait. "Play the show"
+runs it hands-free. Films re-encoded for playback into `assets/f/` (1600px CRF 24,
+desktop 19.8 MB total; portrait 720x1280 crops 12.8 MB) and fetched in show
+order so the next beat is always ready. Mobile: portrait layout, bottom-sheet
+copy, snap carousel shelf, left-anchored HUD. Scrub-era assets moved to
+`lab/retired/`. Portrait-native films (out/p/*.png plates cut at the mobile
+focal points) pending: kling v2.1 returned "internal error" for every job on
+2026-08-25; retry loop in place. Cost so far this rev: 0 credits (527 remain).
