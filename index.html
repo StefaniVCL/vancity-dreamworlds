@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0A0913">
 <meta property="og:type" content="website">
 <meta property="og:title" content="VanCity Labs · Six worlds, grown after dark">
-<meta property="og:description" content="Scroll through one unbroken dream: the grove, the golden river, the glass cavern, the snowfall and the candy sky. Everything in it is on the shelf.">
+<meta property="og:description" content="Ride one unbroken dream: the grove, the golden river, the glass cavern, the snowfall and the candy sky. Everything in it is on the shelf.">
 <meta property="og:url" content="https://stefanivcl.github.io/vancity-dreamworlds/">
 <meta property="og:image" content="https://stefanivcl.github.io/vancity-dreamworlds/assets/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -28,9 +28,9 @@
     --sc-accent-ink: #05131B;
     --sc-font-display: "Outfit", system-ui, sans-serif;
     --sc-font-text:    "Geist", system-ui, sans-serif;
-    --vel: 0;       /* scroll velocity 0..1, written by the dream loop */
-    --breath: 0;    /* slow sine 0..1 when still, written by the dream loop */
-    --bloomp: 0;    /* bloom leg progress 0..1, written by the dream loop */
+    --vel: 0;       /* 1 while a film plays, written by the show */
+    --breath: 0;    /* slow sine 0..1, written by the show */
+    --bloomp: 0;    /* 1 on the nova hold */
   }
 
   /* ---- chrome ------------------------------------------------------- */
@@ -85,24 +85,24 @@
   .map button:hover::after, .map button:focus-visible::after { opacity: 1; }
   @media (max-width: 860px) { .map { display: none; } }
 
-  /* ---- the one canvas ------------------------------------------------ */
-  .sc-world__seg img, .sc-world__seg video { object-fit: cover; width: 100%; height: 100%; }
-
-  /* the living weather: one particle field for the whole flight, its
-     character keyed to the current world by the dream loop */
+  /* ---- the stage ------------------------------------------------------ */
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body { background: var(--sc-canvas); }
+  .show { position: fixed; inset: 0; overflow: hidden; }
+  .stage { position: absolute; inset: 0; will-change: transform; }
+  .scene { position: absolute; inset: 0; opacity: 0; z-index: 1; will-change: opacity; }
+  .scene img, .scene video, .film {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  }
+  .scene video { z-index: 2; }
+  .film { z-index: 4; opacity: 0; pointer-events: none; will-change: opacity; }
   .dream-dust {
     position: absolute; inset: 0; width: 100%; height: 100%;
     z-index: 300; pointer-events: none; mix-blend-mode: screen;
   }
-  .ambient {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    z-index: 250; opacity: 0; pointer-events: none;
-  }
-
-  /* Per-world energy: each pane answers scroll speed in its own light.
-     Overlays live inside their segment, so they fade and move with it. */
+  /* Per-world energy: each hold answers the film's motion in its own light */
   .wfx {
-    position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen;
+    position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; z-index: 3;
     opacity: min(0.9, calc(0.10 + var(--vel) * 0.62 + var(--breath) * 0.10));
   }
   .wfx--harbor { background:
@@ -115,9 +115,6 @@
     linear-gradient(0deg, rgba(70, 220, 160, 0.10) 0%, transparent 34%); }
   .wfx--riverB { background:
     radial-gradient(44rem at 60% 42%, rgba(255, 196, 80, 0.28), rgba(255, 120, 30, 0.10) 48%, transparent 68%); }
-  .wfx--river { background:
-    linear-gradient(0deg, rgba(255, 140, 30, 0.26) 0%, rgba(255, 90, 20, 0.12) 26%, transparent 54%),
-    radial-gradient(40rem at 50% 80%, rgba(255, 210, 110, 0.14), transparent 60%); }
   .wfx--altar { background:
     radial-gradient(44rem at 60% 48%, rgba(150, 230, 255, 0.28), rgba(120, 150, 255, 0.10) 48%, transparent 68%); }
   .wfx--cavern { background:
@@ -131,14 +128,66 @@
     radial-gradient(46rem at 84% 40%, rgba(120, 240, 210, 0.16), transparent 58%); }
   .wfx--wake { background:
     linear-gradient(0deg, rgba(255, 180, 90, 0.24) 0%, rgba(255, 140, 120, 0.10) 30%, transparent 56%); }
-  /* the engine's poster push-in ends each still leg ~17% zoomed while the next
-     clip starts at 100%, which reads as a zoom-out cut at every seam. The
-     dream loop drives seg-level motion instead, returning to exactly 1.0 at
-     both edges of every leg so motion flows through the seams. */
-  .sc-world__poster { transform: none !important; }
+
+  /* ---- copy: beats light up when their hold lands ------------------- */
+  .copy { position: absolute; inset: 0; z-index: 320; pointer-events: none; }
+  .copy .sc-copy { pointer-events: auto; }
+  .beat {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 520ms var(--sc-ease-out), transform 640ms var(--sc-ease-out);
+  }
+  .beat.on { opacity: 1; transform: none; transition-delay: 160ms; }
+  .beat:not(.on) { pointer-events: none !important; transition-duration: 260ms, 260ms; }
+  .scrim {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    transition: opacity 520ms var(--sc-ease-out);
+  }
+  :root:is([data-hold="harbor"], [data-hold="bud"], [data-hold="spoon"], [data-hold="altar"], [data-hold="nova"], [data-hold="wake"]) .scrim { opacity: 1; }
+  .hero-mark.beat, .finale-mark.beat { transform: translate(0, -50%); }
+  .hero-mark.beat:not(.on) { transform: translate(0, calc(-50% + 14px)); }
+
+  /* ---- the HUD ------------------------------------------------------- */
+  .hud {
+    position: fixed; left: 50%; bottom: max(1.1rem, env(safe-area-inset-bottom)); translate: -50% 0;
+    z-index: 400; display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    pointer-events: none;
+  }
+  .hud > * { pointer-events: auto; }
+  .hint {
+    font: 500 0.74rem/1 var(--sc-font-display); letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(241, 237, 251, 0.78); text-shadow: 0 1px 10px rgba(5, 4, 12, 0.9);
+    display: flex; align-items: center; gap: 0.6rem; cursor: pointer; background: none; border: 0; padding: 0.5rem;
+    transition: opacity 600ms var(--sc-ease-out);
+  }
+  .hint::after {
+    content: ""; width: 1px; height: 22px; background: linear-gradient(rgba(241,237,251,0.9), transparent);
+    animation: hintdrop 1.8s ease-in-out infinite;
+  }
+  @keyframes hintdrop { 0% { transform: translateY(-6px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(8px); opacity: 0; } }
+  .hint.gone { opacity: 0; pointer-events: none; }
+  .rail { display: flex; gap: 0.5rem; padding: 0; margin: 0; list-style: none; }
+  .rail button {
+    width: 22px; height: 3px; border-radius: 2px; border: 0; padding: 0; cursor: pointer;
+    background: rgba(241, 237, 251, 0.35); transition: background 240ms var(--sc-ease-out), width 240ms var(--sc-ease-out);
+  }
+  .rail button[aria-current="true"] { background: var(--sc-accent); width: 34px; }
+  .play {
+    position: fixed; right: max(var(--sc-gutter), env(safe-area-inset-right)); bottom: max(1.1rem, env(safe-area-inset-bottom));
+    z-index: 400; font: 600 0.74rem/1 var(--sc-font-display); letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--sc-ink); background: rgba(10, 8, 20, 0.55); border: 1px solid rgba(241, 237, 251, 0.3);
+    padding: 0.7em 1.1em; border-radius: 999px; cursor: pointer; backdrop-filter: blur(8px);
+  }
+  .play[aria-pressed="true"] { border-color: var(--sc-accent); color: var(--sc-accent); }
+  .loader {
+    position: fixed; left: 50%; top: 50%; translate: -50% -50%; z-index: 400; width: 34px; height: 34px;
+    border-radius: 50%; border: 2px solid rgba(241, 237, 251, 0.18); border-top-color: var(--sc-accent);
+    opacity: 0; transition: opacity 300ms; animation: spin 0.9s linear infinite; pointer-events: none;
+  }
+  .loader.on { opacity: 1; transition-delay: 350ms; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---- copy layer ---------------------------------------------------- */
-  .sc-world__scrim {
+  .scrim {
     background: linear-gradient(to top right,
       rgba(8, 7, 16, 0.96) 0%, rgba(8, 7, 16, 0.8) 34%,
       rgba(8, 7, 16, 0.42) 62%, transparent 86%);
@@ -270,39 +319,33 @@
   /* ---- responsive / reduced ------------------------------------------- */
   @media (max-width: 860px) {
     .w-hero h1 { font-size: var(--sc-t-2xl); }
-    /* world headings one step down: lg display wraps badly at 390px */
     .w-copy h2.sc-display--lg { font-size: var(--sc-t-2xl); }
     .w-copy { max-width: none; }
-    .sc-world__scrim {
+    .sc-copy--lead { bottom: max(4.4rem, calc(env(safe-area-inset-bottom) + 3.8rem)); }
+    .scrim {
       background: linear-gradient(to top,
         rgba(8, 7, 16, 0.97) 0%, rgba(8, 7, 16, 0.86) 28%,
         rgba(8, 7, 16, 0.46) 54%, transparent 72%);
     }
-    .card { width: 72vw; }
-    .hero-mark { right: auto; left: 50%; top: 20%; translate: -50% 0; }
-    .hero-mark img { width: 42vw; }
-    /* portrait crops: pick the slice of each landscape painting that frames
-       its subject instead of blowing up whatever lands mid-frame */
-    [data-sc-segment]:nth-of-type(3) :is(img, video),
-    .ambient[data-amb-seg="2"] { object-position: 58% 45%; }
-    [data-sc-segment]:nth-of-type(7) :is(img, video),
-    .ambient[data-amb-seg="6"] { object-position: 60% 40%; }
-    [data-sc-segment]:nth-of-type(11) :is(img, video),
-    .ambient[data-amb-seg="10"] { object-position: 58% 45%; }
-    [data-sc-segment]:nth-of-type(17) :is(img, video),
-    .ambient[data-amb-seg="16"] { object-position: 55% 50%; }
+    .hero-mark { right: auto; left: 50%; top: 22%; translate: -50% 0; }
+    .hero-mark img { width: 44vw; }
+    .hero-mark.beat, .finale-mark.beat { transform: none; }
+    .hero-mark.beat:not(.on) { transform: translateY(14px); }
+    .market-head { top: max(4.6rem, 8vh); }
+    .shelf { bottom: max(4.2rem, calc(env(safe-area-inset-bottom) + 3.6rem)) !important; }
+    .shelf__rail { gap: 0.6rem; scroll-snap-type: x mandatory; touch-action: pan-x; }
+    .card { width: 62vw; }
+    .card img { width: 66%; margin-bottom: 0.6rem; }
+    .play { right: 0.9rem; bottom: max(1rem, env(safe-area-inset-bottom)); font-size: 0.62rem; padding: 0.55em 0.85em; opacity: 0.85; }
+    .hud { left: 0.9rem; translate: 0 0; align-items: flex-start; }
+    .hud { gap: 0.45rem; }
+    .hint { font-size: 0.66rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .sc-world, .sc-world.is-melting { filter: none; }
-    .hero-mark img, .hero-mark::before { animation: none; }
-    .bloom-bud img { opacity: 1; transform: scale(0.55); }
-    .bloom-bud::before { opacity: 0.8; transform: none; }
-    /* the dream loop never runs here, so the scrims hold static */
+    .hero-mark img, .hero-mark::before, .card img, .hint::after { animation: none; }
+    .beat, .scrim { transition-duration: 1ms; }
     .bloom-scrim { opacity: 0.85; }
     .shelf-scrim { opacity: 1; }
-    /* the engine drops the poster push-in; hold its crop statically so the
-       frame under the copy matches the one the contrast pass verified */
-    .sc-world__seg { transform: scale(1.08); }
   }
 </style>
 </head>
@@ -317,159 +360,75 @@
 
 <nav aria-label="Worlds" style="display: contents">
   <ul class="map" id="dreamMap">
-    <li><button data-leg="0"  aria-label="The Harbor"></button></li>
-    <li><button data-leg="2"  aria-label="The Grove"></button></li>
-    <li><button data-leg="6"  aria-label="The Golden Spoon"></button></li>
-    <li><button data-leg="10" aria-label="The Glass Cavern"></button></li>
-    <li><button data-leg="13" aria-label="The Snowfall"></button></li>
-    <li><button data-leg="16" aria-label="The Candy Sky"></button></li>
-    <li><button data-leg="18" aria-label="The Wake"></button></li>
+    <li><button data-jump="harbor" aria-label="The Harbor"></button></li>
+    <li><button data-jump="bud"    aria-label="The Grove"></button></li>
+    <li><button data-jump="spoon"  aria-label="The Golden Spoon"></button></li>
+    <li><button data-jump="altar"  aria-label="The Glass Cavern"></button></li>
+    <li><button data-jump="nova"   aria-label="The Snowfall"></button></li>
+    <li><button data-jump="market" aria-label="The Candy Sky"></button></li>
+    <li><button data-jump="wake"   aria-label="The Wake"></button></li>
   </ul>
 </nav>
 
-<div data-sc-mode="worldflight" data-sc-seam="0.2" data-sc-lerp="0.22">
-
-  <div data-sc-world>
-    <!-- worlds are poster-only legs; every join is a frame-locked morph clip.
-         Product worlds are two stills: arrival, then the product shrine, so
-         each world travels before it transitions. All six clips share one
-         weight so the flight holds a single pace (1.8vh per 5s of film). -->
-    <div data-sc-segment data-sc-w="1.1" data-sc-waypoint="Harbor">
-      <img class="sc-world__poster" src="assets/w1-hero.webp" alt="" decoding="async">
-      <div class="wfx wfx--harbor" aria-hidden="true"></div>
+<div class="show" id="show">
+  <div class="stage" id="stage" aria-hidden="true">
+    <!-- two scene layers crossfade the holds; two film slots alternate so the
+         next transition is always decoded to its first frame before it plays -->
+    <div class="scene" data-layer="a">
+      <img alt="" decoding="async"><video muted loop playsinline preload="auto"></video><div class="wfx"></div>
     </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Falling asleep">
-      <img class="sc-world__poster" src="assets/b1-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b1.mp4" data-sc-src-mobile="assets/b1-m.mp4" muted playsinline></video>
+    <div class="scene" data-layer="b">
+      <img alt="" decoding="async"><video muted loop playsinline preload="auto"></video><div class="wfx"></div>
     </div>
-    <div data-sc-segment data-sc-w="1.0" data-sc-waypoint="The Frumpz">
-      <img class="sc-world__poster" src="assets/w2d-grove-bud.webp" alt="" decoding="async">
-      <div class="wfx wfx--groveB" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Into the grove">
-      <img class="sc-world__poster" src="assets/g1-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/g1.mp4" data-sc-src-mobile="assets/g1-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="0.8" data-sc-waypoint="Grove">
-      <img class="sc-world__poster" src="assets/w2-grove.webp" alt="" decoding="async">
-      <div class="wfx wfx--grove" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Gold rising">
-      <img class="sc-world__poster" src="assets/b2-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b2.mp4" data-sc-src-mobile="assets/b2-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.0" data-sc-waypoint="The golden spoon">
-      <img class="sc-world__poster" src="assets/w3b-river-product.webp" alt="" decoding="async">
-      <div class="wfx wfx--riverB" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Freezing">
-      <img class="sc-world__poster" src="assets/b3-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b3.mp4" data-sc-src-mobile="assets/b3-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="0.8" data-sc-waypoint="Glass Cavern">
-      <img class="sc-world__poster" src="assets/w4-cavern.webp" alt="" decoding="async">
-      <div class="wfx wfx--cavern" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="The reveal">
-      <img class="sc-world__poster" src="assets/c1-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/c1.mp4" data-sc-src-mobile="assets/c1-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.0" data-sc-waypoint="The altar">
-      <img class="sc-world__poster" src="assets/w4b-cavern-product.webp" alt="" decoding="async">
-      <div class="wfx wfx--altar" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Lights out">
-      <img class="sc-world__poster" src="assets/b4-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b4.mp4" data-sc-src-mobile="assets/b4-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.4" data-sc-linger="0.1" data-sc-waypoint="The void">
-      <img class="sc-world__poster" src="assets/w5-void.webp" alt="" decoding="async">
-      <video data-sc-src="assets/v1.mp4" data-sc-src-mobile="assets/v1-m.mp4" muted playsinline></video>
-      <div class="wfx wfx--void" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.7" data-sc-linger="0.3" data-sc-waypoint="Snowfall">
-      <img class="sc-world__poster" src="assets/s1-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/s1.mp4" data-sc-src-mobile="assets/s1-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="0.9" data-sc-waypoint="The nova">
-      <img class="sc-world__poster" src="assets/w5b-nova.webp" alt="" decoding="async">
-      <div class="wfx wfx--nova" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Candy burst">
-      <img class="sc-world__poster" src="assets/b5-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b5.mp4" data-sc-src-mobile="assets/b5-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.4" data-sc-waypoint="Candy Sky">
-      <img class="sc-world__poster" src="assets/w6-market.webp" alt="" decoding="async">
-      <div class="wfx wfx--market" aria-hidden="true"></div>
-    </div>
-    <div data-sc-segment data-sc-w="1.15" data-sc-linger="0.15" data-sc-waypoint="Morning comes">
-      <img class="sc-world__poster" src="assets/b6-poster.webp" alt="" decoding="async">
-      <video data-sc-src="assets/b6.mp4" data-sc-src-mobile="assets/b6-m.mp4" muted playsinline></video>
-    </div>
-    <div data-sc-segment data-sc-w="1.0" data-sc-waypoint="Wake">
-      <img class="sc-world__poster" src="assets/w7-wake.webp" alt="" decoding="async">
-      <div class="wfx wfx--wake" aria-hidden="true"></div>
-    </div>
-    <!-- ambient cinemagraph loops: living air over the product shrines,
-         opacity mirrored to their segment by the dream loop -->
-    <video class="ambient" data-amb-seg="0"  data-amb-src="assets/amb-city.mp4"   muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="2"  data-amb-src="assets/amb-bud.mp4"    muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="4"  data-amb-src="assets/amb-trees.mp4"  muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="6"  data-amb-src="assets/amb-spoon.mp4"  muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="8"  data-amb-src="assets/amb-cavern.mp4" muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="10" data-amb-src="assets/amb-altar.mp4"  muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="14" data-amb-src="assets/amb-nova.mp4"   muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="16" data-amb-src="assets/amb-market.mp4" muted loop playsinline aria-hidden="true"></video>
-    <video class="ambient" data-amb-seg="18" data-amb-src="assets/amb-dawn.mp4"   muted loop playsinline aria-hidden="true"></video>
-    <canvas class="dream-dust" aria-hidden="true"></canvas>
+    <video class="film" muted playsinline preload="auto"></video>
+    <video class="film" muted playsinline preload="auto"></video>
+    <canvas class="dream-dust"></canvas>
   </div>
 
-  <div data-sc-world-copy>
-    <div class="sc-world__scrim" aria-hidden="true"></div>
-
-    <!-- world copy (track fractions of 24.9) -->
-    <div class="sc-copy sc-copy--lead w-copy w-hero" data-sc-copy data-sc-window="hero">
+  <div class="copy">
+    <div class="scrim" aria-hidden="true"></div>
+    <!-- world copy: one block per hold, lit by the show -->
+    <div class="sc-copy sc-copy--lead w-copy w-hero beat" data-beat="harbor">
       <h1 class="sc-display sc-display--xl">The city sleeps.<br>The garden doesn't.</h1>
       <p class="sc-body">Six worlds, grown in British Columbia. VanCity Labs keeps the lights on all night. Scroll, and don't wake up yet.</p>
     </div>
     <!-- the animated mark: no text content, so the contrast pass skips it -->
-    <div class="hero-mark" data-sc-copy data-sc-window="0 0.0537 0 0.35" aria-hidden="true">
+    <div class="hero-mark beat" data-beat="harbor" aria-hidden="true">
       <img src="assets/logo.svg" width="87" height="45" alt="">
     </div>
 
-    <div class="sc-copy sc-copy--lead w-copy" data-sc-copy data-sc-window="0.115 0.249">
+    <div class="sc-copy sc-copy--lead w-copy beat" data-beat="bud">
       <p class="sc-label">The Grove</p>
       <h2 class="sc-display sc-display--lg">Small buds, deep sleep.</h2>
       <p class="sc-body">Frumpz smalls and hand-rolled cones, cured slow under a purple sky.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/a-smalls">Shop smalls</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/pre-rolls">Shop pre-rolls</a></p>
     </div>
 
-    <div class="sc-copy sc-copy--lead w-copy w-river" data-sc-copy data-sc-window="0.313 0.356">
+    <div class="sc-copy sc-copy--lead w-copy w-river beat" data-beat="spoon">
       <h2 class="sc-display sc-display--lg">A river runs gold.</h2>
       <p class="sc-body">Live rosin, pressed cold from fresh-frozen flower. The terpenes ride the current whole.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/live-hash-rosin">Shop live hash rosin</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/cheap-dabs">Shop extracts</a></p>
     </div>
 
-    <div class="cavern-glow" aria-hidden="true" data-sc-copy data-sc-window="0.410 0.563"></div>
-    <div class="sc-copy sc-copy--lead w-copy w-cavern" data-sc-copy data-sc-window="0.420 0.554">
+    <div class="cavern-glow beat" data-beat="cavern altar" aria-hidden="true"></div>
+    <div class="sc-copy sc-copy--lead w-copy w-cavern beat" data-beat="altar">
       <h2 class="sc-display sc-display--lg">The cavern keeps its light.</h2>
       <p class="sc-body">THCA diamonds grown in glass, stacked on the altar where the light lands.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/thca-diamonds">Shop diamonds</a></p>
     </div>
 
     <div class="bloom-scrim" aria-hidden="true"></div>
-    <div class="sc-copy sc-copy--lead w-copy w-bloom" data-sc-copy data-sc-window="0.698 0.766">
+    <div class="sc-copy sc-copy--lead w-copy w-bloom beat" data-beat="nova">
       <h2 class="sc-display sc-display--lg">And then it snowed in the dark.</h2>
       <p class="sc-body">THCA isolate, milled fine as mountain snow. The cleanest thing in the dream.</p>
       <p class="sc-body"><a class="worldlink" href="https://www.vancitylabs.co/shop/isolates">Shop isolates</a> · <a class="worldlink" href="https://www.vancitylabs.co/shop/bc-bud">Shop BC bud</a></p>
     </div>
 
     <div class="shelf-scrim" aria-hidden="true"></div>
-    <div class="sc-copy sc-copy--lead w-copy market-head" data-sc-copy data-sc-window="0.832 0.890">
+    <div class="sc-copy sc-copy--lead w-copy market-head beat" data-beat="market">
       <h2 class="sc-display sc-display--md">Pick a world. Wake up in it.</h2>
     </div>
-    <div class="shelf sc-copy" data-sc-copy data-sc-window="0.835 0.893">
+    <div class="shelf sc-copy beat" data-beat="market">
       <div class="shelf__rail">
         <a class="card" href="https://www.vancitylabs.co/shop/bc-edibles">
           <img src="assets/edibles.webp" width="1200" height="1200" alt="A VanCity Labs jar of sugared gummy cubes.">
@@ -504,205 +463,33 @@
       </div>
     </div>
 
-    <div class="hero-mark finale-mark" data-sc-copy data-sc-window="finale" aria-hidden="true">
+    <div class="hero-mark finale-mark beat" data-beat="wake" aria-hidden="true">
       <img src="assets/logo.svg" width="87" height="45" alt="">
     </div>
-    <div class="sc-copy sc-copy--lead w-copy" data-sc-copy data-sc-window="finale">
+    <div class="sc-copy sc-copy--lead w-copy beat" data-beat="wake">
       <h2 class="sc-display sc-display--lg">Open your eyes. It's all real.</h2>
       <p class="sc-body">Everything you flew through is on the shelf tonight, grown in BC and shipped across Canada.</p>
       <p style="margin-top: 1.6rem;"><a class="cta" href="https://www.vancitylabs.co/">Enter the shop</a></p>
       <p class="sc-body" style="margin-top: 2rem; font-size: var(--sc-t-xs);">© 2026 VanCity Labs · Vancouver, BC · 19+ only. This was a dream. <a class="worldlink" href="https://www.vancitylabs.co/">The shop is real.</a></p>
     </div>
   </div>
-
-  <div data-sc-spacer aria-hidden="true"></div>
 </div>
 
-<script src="scrollcraft.js"></script>
-<script>
-ScrollCraft.mount(document);
+<div class="loader" id="loader" aria-hidden="true"></div>
+<div class="hud" id="hud">
+  <button class="hint" id="hint" type="button">Scroll to begin</button>
+  <ul class="rail" aria-label="Progress">
+    <li><button data-jump="harbor" aria-label="The Harbor"></button></li>
+    <li><button data-jump="bud"    aria-label="The Grove"></button></li>
+    <li><button data-jump="spoon"  aria-label="The Golden Spoon"></button></li>
+    <li><button data-jump="altar"  aria-label="The Glass Cavern"></button></li>
+    <li><button data-jump="nova"   aria-label="The Snowfall"></button></li>
+    <li><button data-jump="market" aria-label="The Candy Sky"></button></li>
+    <li><button data-jump="wake"   aria-label="The Wake"></button></li>
+  </ul>
+</div>
+<button class="play" id="playShow" type="button" aria-pressed="false">Play the show</button>
 
-/* worldflight sizes its spacer once at mount; re-measure after load and fonts */
-function relayout() { dispatchEvent(new Event('resize')); }
-addEventListener('load', relayout);
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
-
-/* Shared track geometry: one source of truth for the map and the dream loop */
-var W_WEIGHTS = [1.1, 1.15, 1.0, 1.15, 0.8, 1.15, 1.0, 1.15, 0.8, 1.15, 1.0, 1.15, 0.6, 1.7, 0.9, 1.15, 1.4, 1.15, 1.0];
-var W_C0 = []; (function () { var r = 0; W_WEIGHTS.forEach(function (w) { W_C0.push(r); r += w; }); })();
-
-/* The dream map: waypoint dots, clickable, lit by the engine's event */
-(function () {
-  var map = document.getElementById('dreamMap');
-  map.addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-leg]');
-    if (!b) return;
-    /* leg c0 in viewport-heights equals scrollY / innerHeight on the track */
-    scrollTo({ top: (W_C0[+b.dataset.leg] + 0.12) * innerHeight, behavior: 'smooth' });
-  });
-  addEventListener('sc:waypoint', function (e) {
-    var nearest = null, best = 1e9;
-    map.querySelectorAll('button[data-leg]').forEach(function (el) {
-      var d = Math.abs(+el.dataset.leg - e.detail.index);
-      if (d < best) { best = d; nearest = el; }
-      el.setAttribute('aria-current', 'false');
-    });
-    if (nearest) nearest.setAttribute('aria-current', 'true');
-  });
-})();
-
-/* The dream loop: the films are the only scroll-driven camera. The canvas
-   itself just breathes: one slow time-based drift applied identically to the
-   whole stage, so it is alive at rest and physically cannot jump at a seam,
-   and it never zooms against the reader's scroll. */
-(function () {
-  if (!matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
-  var root = document.documentElement;
-  var stage = document.querySelector('.sc-world');
-  var lastY = window.scrollY, lastT = performance.now();
-  var vel = 0, phase = 0;
-  var BLOOM_LEG = 13, SHELF_LEG = 16;
-
-  /* ---- the weather: one particle field, keyed to the current world ---- */
-  var WKEY = ['harbor','grove','grove','grove','grove','river','river','cavern','cavern',
-              'cavern','cavern','void','void','nova','nova','market','market','wake','wake'];
-  var WCFG = {
-    harbor: { style: 'streak', n: 55, vy: [180, 300], vx: 26, sway: 0, len: 13,
-              colors: ['rgba(178,198,255,0.45)', 'rgba(150,222,255,0.38)'] },
-    grove:  { style: 'dot', n: 80, vy: [-26, -8], vx: 0, sway: 22, size: [1.4, 3.4],
-              tw: 0.6, colors: ['#CBA1FF', '#9BE8C4', '#EBD9FF'] },
-    river:  { style: 'dot', n: 70, vy: [-60, -28], vx: 4, sway: 10, size: [1, 3],
-              tw: 0.45, colors: ['#FFC96A', '#FF9A3C', '#FFE9B0'] },
-    cavern: { style: 'dot', n: 75, vy: [14, 34], vx: 0, sway: 8, size: [1, 2.6],
-              tw: 0.8, colors: ['#BFEFFF', '#DFF6FF', '#9BD8FF'] },
-    void:   { style: 'dot', n: 26, vy: [2, 7], vx: 0, sway: 3, size: [0.7, 1.8],
-              tw: 1, colors: ['#C9D4FF', '#E8ECFF'] },
-    nova:   { style: 'dot', n: 150, vy: [45, 110], vx: 0, sway: 32, size: [1, 3.8],
-              tw: 0.5, colors: ['#FFFFFF', '#E7F0FF', '#DFE8FF'] },
-    market: { style: 'dot', n: 130, vy: [-30, 14], vx: 8, sway: 24, size: [1.2, 3.4],
-              tw: 0.9, colors: ['#FF9AD5', '#8AF0D2', '#FFE08A', '#C5A8FF'] },
-    wake:   { style: 'dot', n: 75, vy: [-20, -6], vx: 4, sway: 10, size: [1, 3],
-              tw: 0.5, colors: ['#FFD9A0', '#FFEECB', '#FFC9B0'] }
-  };
-  var canvas = document.querySelector('.dream-dust');
-  var ctx = canvas.getContext('2d');
-  var sprites = {};
-  function sprite(c) {
-    if (sprites[c]) return sprites[c];
-    var s = document.createElement('canvas'); s.width = s.height = 32;
-    var g = s.getContext('2d');
-    var grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-    grad.addColorStop(0, '#fff'); grad.addColorStop(0.25, c); grad.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = grad; g.fillRect(0, 0, 32, 32);
-    return (sprites[c] = s);
-  }
-  var P = [];
-  function respawn(p, cfg, anywhere) {
-    p.cfg = cfg;
-    p.x = Math.random() * canvas.width;
-    p.y = anywhere ? Math.random() * canvas.height
-        : (cfg.vy[0] + cfg.vy[1] < 0 ? canvas.height + 20 : -20);
-    p.vy = cfg.vy[0] + Math.random() * (cfg.vy[1] - cfg.vy[0]);
-    p.size = cfg.size ? cfg.size[0] + Math.random() * (cfg.size[1] - cfg.size[0]) : 1;
-    p.color = cfg.colors[(Math.random() * cfg.colors.length) | 0];
-    p.ph = Math.random() * 6.28;
-    p.twf = 0.5 + Math.random() * 1.6;
-  }
-  function sizeCanvas() {
-    canvas.width = innerWidth; canvas.height = innerHeight;
-  }
-  sizeCanvas(); addEventListener('resize', sizeCanvas);
-  for (var pi = 0; pi < 110; pi++) { var p0 = {}; respawn(p0, WCFG.harbor, true); P.push(p0); }
-
-  /* ambient loops: mirror their segment's opacity, play only when visible */
-  var segEls = Array.prototype.slice.call(document.querySelectorAll('[data-sc-segment]'));
-  var ambients = Array.prototype.slice.call(document.querySelectorAll('.ambient')).map(function (v) {
-    return { v: v, seg: +v.dataset.ambSeg, loaded: false };
-  });
-
-  function tick(t) {
-    var dt = Math.min(48, t - lastT) || 16; lastT = t;
-    var y = window.scrollY;
-    var target = Math.min(1, Math.abs(y - lastY) / dt / 2.4);
-    lastY = y;
-    vel += (target - vel) * (target > vel ? 0.16 : 0.04);
-    phase += (dt / 6000) * Math.PI * 2 * (1 - vel * 0.6);
-    var br = (Math.sin(phase) + 1) / 2;
-    root.style.setProperty("--vel", vel.toFixed(3));
-    root.style.setProperty("--breath", br.toFixed(3));
-
-    if (stage) {
-      /* drift stays inside the scale margin at every viewport size */
-      var s = 1.015 + br * 0.012;
-      var cap = Math.min(innerWidth, innerHeight) * 0.006;
-      var dx = Math.sin(phase * 0.7) * cap;
-      var dy = Math.cos(phase * 0.5) * cap * 0.7;
-      stage.style.transform = 'translate3d(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px,0) scale(' + s.toFixed(4) + ')';
-    }
-
-    var cs = getComputedStyle(root);
-    var curSeg = Math.round(parseFloat(cs.getPropertyValue('--sc-seg')) || 0);
-    var cfg = WCFG[WKEY[Math.min(curSeg, WKEY.length - 1)]] || WCFG.harbor;
-
-    /* weather */
-    var dts = dt / 1000, boost = 1 + vel * 1.8, ts = t / 1000;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var k = 0; k < P.length; k++) {
-      var p = P[k];
-      var quota = cfg.n * (innerWidth < 700 ? 0.55 : 1);
-      if (p.dormant) {
-        if (k < quota) { p.dormant = false; respawn(p, cfg, false); }
-        continue;
-      }
-      p.y += p.vy * dts * boost;
-      p.x += ((p.cfg.vx || 0) + Math.sin(ts * p.twf + p.ph) * (p.cfg.sway || 0)) * dts * boost;
-      var off = p.y < -30 || p.y > canvas.height + 30 || p.x < -30 || p.x > canvas.width + 30;
-      if (off) {
-        if (k < quota) respawn(p, cfg, false); else p.dormant = true;
-        continue;
-      }
-      var a = 0.5 + Math.sin(ts * p.twf * 2 + p.ph) * (p.cfg.tw || 0.3) * 0.5;
-      ctx.globalAlpha = Math.max(0.08, Math.min(1, a));
-      if (p.cfg.style === 'streak') {
-        ctx.strokeStyle = p.color; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - (p.cfg.vx || 0) * 0.05, p.y - (p.cfg.len || 12));
-        ctx.stroke();
-      } else {
-        var d = p.size * 6;
-        ctx.drawImage(sprite(p.color), p.x - d / 2, p.y - d / 2, d, d);
-      }
-    }
-    ctx.globalAlpha = 1;
-
-    /* ambient loops follow their segment; each rewinds to its loop start as
-       its scene fades in, so the crossfade always matches the painting */
-    for (var m = 0; m < ambients.length; m++) {
-      var am = ambients[m], segEl = segEls[am.seg];
-      if (!segEl) continue;
-      var op = parseFloat(segEl.style.opacity || '0') || 0;
-      am.v.style.opacity = op.toFixed(3);
-      if (op > 0.03) {
-        if (!am.loaded) { am.v.src = am.v.dataset.ambSrc; am.loaded = true; }
-        if ((am.lastOp || 0) <= 0.03 && am.v.readyState > 1) { try { am.v.currentTime = 0; } catch (e) {} }
-        if (am.v.paused) { var pr = am.v.play(); if (pr && pr.catch) pr.catch(function () {}); }
-      } else if (!am.v.paused) { am.v.pause(); }
-      am.lastOp = op;
-    }
-    var seg = parseFloat(cs.getPropertyValue('--sc-seg')) || 0;
-    var segp = parseFloat(cs.getPropertyValue('--sc-segp')) || 0;
-    var bp = seg < BLOOM_LEG ? 0 : seg > BLOOM_LEG ? 1 : segp;
-    if (seg === BLOOM_LEG + 1) bp = Math.max(0, 1 - segp * 3);
-    if (seg > BLOOM_LEG + 1) bp = 0;
-    root.style.setProperty('--bloomp', bp.toFixed(3));
-    var sp = seg === SHELF_LEG - 1 ? Math.max(0, segp * 2 - 1)
-           : seg === SHELF_LEG ? 1
-           : seg === SHELF_LEG + 1 ? Math.max(0, 1 - segp * 2) : 0;
-    root.style.setProperty('--shelfp', sp.toFixed(3));
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-})();
-</script>
+<script src="show.js"></script>
 </body>
 </html>
